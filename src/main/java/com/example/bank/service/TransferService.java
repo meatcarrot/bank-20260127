@@ -19,6 +19,7 @@ public class TransferService {
         Account to = accountRepository.findById(toId);
 
         from.withdraw(amount);
+        //if(true) throw new RuntimeException(("강제 실패"));
         to.deposit(amount);
     }
 }

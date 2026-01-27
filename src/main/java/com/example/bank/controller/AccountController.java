@@ -10,8 +10,8 @@ public class AccountController {
 
     private final AccountRepository accountRepository;
 
-    public AccountController() {
-        this.accountRepository = new AccountRepository();
+    public AccountController(AccountRepository accountRepository) {
+        this.accountRepository = accountRepository;
     }
 
     @GetMapping("/{id}")

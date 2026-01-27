@@ -9,9 +9,8 @@ import org.springframework.web.bind.annotation.*;
 public class TransferController {
     private final TransferService transferService;
 
-    public TransferController() {
-        this.transferService =
-                new TransferService(new com.example.bank.repository.AccountRepository());
+    public TransferController(TransferService transferService) {
+        this.transferService = transferService;
     }
 
     @PostMapping("/transfer")
