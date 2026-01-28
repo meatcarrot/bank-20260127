@@ -16,6 +16,7 @@ public class AccountController {
 
     @GetMapping("/{id}")
     public Account getAccount(@PathVariable Long id) {
-        return accountRepository.findById(id);
+        return accountRepository.findById(id)
+                .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
     }
 }

@@ -1,13 +1,30 @@
 package com.example.bank.domain;
 
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "account")
 public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private int balance;
 
-    public Account(long id, int balance) {
-        this.id = id;
+    protected Account() {
+
+    }
+    public Account(int balance) {
         this.balance = balance;
+    }
+
+    public Long getId(){
+        return id;
+    }
+
+    public int getBalance() {
+        return balance;
     }
 
     public void withdraw(int amount){
@@ -24,14 +41,7 @@ public class Account {
         if (amount <= 0){
             throw new IllegalArgumentException("입금액은 0원 이상");
         }
-        balance += amount;
+        this.balance += amount;
     }
 
-    public int getBalance() {
-        return balance;
-    }
-
-    public Long getId() {
-        return id;
-    }
 }

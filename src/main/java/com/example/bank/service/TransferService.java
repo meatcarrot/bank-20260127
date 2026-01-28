@@ -17,8 +17,10 @@ public class TransferService {
 
 
     public void transfer(Long fromId, Long toId, int amount) {
-        Account from = accountRepository.findById(fromId);
-        Account to = accountRepository.findById(toId);
+        Account from = accountRepository.findById(fromId)
+                .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
+        Account to = accountRepository.findById(toId)
+                .orElseThrow(()-> new IllegalArgumentException(("계좌 없음")));
 
         from.withdraw(amount);
         if(true) {
