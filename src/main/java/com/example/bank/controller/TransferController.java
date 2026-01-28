@@ -1,6 +1,7 @@
 package com.example.bank.controller;
 
 import com.example.bank.service.TransferService;
+import com.example.bank.service.TransferService.TransferFailException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,7 +15,7 @@ public class TransferController {
     @PostMapping("/transfer")
     public String transfer(@RequestParam Long fromId,
                            @RequestParam Long toId,
-                           @RequestParam int amount) {
+                           @RequestParam int amount) throws TransferFailException {
         transferService.transfer(fromId, toId, amount);
         return "이체 완료";
     }
