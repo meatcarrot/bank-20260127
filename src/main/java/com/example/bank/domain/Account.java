@@ -12,6 +12,10 @@ public class Account {
 
     private int balance;
 
+    // DB -> 객체로 복원함
+    // 그래서 JPA는 기본 생성자가 꼭 필요
+    // JPA를 위한 생성자는 열어두되, 외부에서 막 쓰는 건 막는다.
+    // private는 JPA가 접근을 못함
     protected Account() {
 
     }
