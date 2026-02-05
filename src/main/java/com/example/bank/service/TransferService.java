@@ -41,9 +41,12 @@ public class TransferService {
         this.logService = logService;
         this.eventPublisher = eventPublisher;
     }
-    //rollbackFor을 통해서 모든 exception이 다 트랜젝션이 되도록 하는게 일반적
-    @Transactional(rollbackFor = Exception.class)
-    public void transfer(Long fromId, Long toId, int amount) throws TransferFailException {
+    // rollbackFor을 통해서 시스템 예외는 롤백이 되도록
+    // noRollBackFor를 통해서 비지니스적 예외는 롤백 안 되도록
+    @Transactional(
+            rollbackFor = SystemException.class,
+            noRollbackFor = BuissnessException.class)
+    public void transfer(Long fromId, Long toId, int amount) throws SystemException {
         Account from = accountRepository.findById(fromId)
                 .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
         Account to = accountRepository.findById(toId)
@@ -72,8 +75,14 @@ public class TransferService {
     }
 
     // checked exception임. 이건 트랜젝션이 되지 않는다
-    public class TransferFailException extends Exception {
-        public TransferFailException(String message) {
+    public class SystemException  extends Exception {
+        public SystemException (String message) {
+            super(message);
+        }
+    }
+
+    public class BuissnessException extends Exception {
+        public BuissnessException(String message) {
             super(message);
         }
     }

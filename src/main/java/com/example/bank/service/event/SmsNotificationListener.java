@@ -1,4 +1,4 @@
-package com.example.bank.event.listener;
+package com.example.bank.service.event;
 
 import com.example.bank.domain.TransferCompletedEvent;
 import org.springframework.scheduling.annotation.Async;
