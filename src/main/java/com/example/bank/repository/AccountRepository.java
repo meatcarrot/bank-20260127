@@ -17,7 +17,7 @@ public interface AccountRepository
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select a from Account a where a.id = :id")
-    Optional<Account> findByIdForUpdate(@Param("id") Long id);
+    Optional<Account> findByIdWithLock(@Param("id") Long id);
 
 }
 

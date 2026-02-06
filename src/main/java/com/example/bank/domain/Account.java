@@ -1,6 +1,7 @@
 package com.example.bank.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.DialectOverride;
 
 @Entity
 @Table(name = "account")
@@ -12,6 +13,10 @@ public class Account {
 
     private int balance;
 
+    //낙관적 락을 위한 버전 정보 추가
+    @Version
+    private Long version;
+
     // DB -> 객체로 복원함
     // 그래서 JPA는 기본 생성자가 꼭 필요
     // JPA를 위한 생성자는 열어두되, 외부에서 막 쓰는 건 막는다.
@@ -19,6 +24,7 @@ public class Account {
     protected Account() {
 
     }
+
     public Account(int balance) {
         this.balance = balance;
     }
@@ -42,7 +48,7 @@ public class Account {
     }
 
     public void deposit(int amount){
-        if (amount <= 0){
+        if (amount < 0){
             throw new IllegalArgumentException("입금액은 0원 이상");
         }
         this.balance += amount;

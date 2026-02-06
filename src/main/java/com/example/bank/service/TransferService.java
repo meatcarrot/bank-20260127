@@ -47,9 +47,9 @@ public class TransferService {
             rollbackFor = SystemException.class,
             noRollbackFor = BuissnessException.class)
     public void transfer(Long fromId, Long toId, int amount) throws SystemException {
-        Account from = accountRepository.findByIdForUpdate(fromId)
+        Account from = accountRepository.findByIdWithLock(fromId)
                 .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
-        Account to = accountRepository.findByIdForUpdate(toId)
+        Account to = accountRepository.findByIdWithLock(toId)
                 .orElseThrow(()-> new IllegalArgumentException(("계좌 없음")));
 
 
