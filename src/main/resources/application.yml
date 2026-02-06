@@ -1,21 +1,21 @@
 spring:
 
-  application:
-    name: bank
-
   datasource:
-    url: jdbc:h2:mem:testdb
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:mysql://localhost:3306/bank
+    username: bank
+    password: bank
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
       ddl-auto: create
     show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
     defer-datasource-initialization: true
-    # data.sql? Hibernate? ???? ???? ?? ?? INSERT? ?? ??? ?
-    # ??? ? ??? ???? data.sql? hibernate ?? ? ??? ??
-  h2:
-    console:
-      enabled: true
+
+  sql:
+    init:
+      mode: always
+

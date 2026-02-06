@@ -47,9 +47,9 @@ public class TransferService {
             rollbackFor = SystemException.class,
             noRollbackFor = BuissnessException.class)
     public void transfer(Long fromId, Long toId, int amount) throws SystemException {
-        Account from = accountRepository.findById(fromId)
+        Account from = accountRepository.findByIdForUpdate(fromId)
                 .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
-        Account to = accountRepository.findById(toId)
+        Account to = accountRepository.findByIdForUpdate(toId)
                 .orElseThrow(()-> new IllegalArgumentException(("계좌 없음")));
 
 
@@ -61,6 +61,13 @@ public class TransferService {
                         amount
                 )
         );
+
+        // 👇 인위적 지연 (동시성 충돌 유도)
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         from.withdraw(amount);
 
