@@ -15,7 +15,7 @@ public class Account {
 
     //낙관적 락을 위한 버전 정보 추가
     @Version
-    private Long version;
+    private Long version = 0L;
 
     // DB -> 객체로 복원함
     // 그래서 JPA는 기본 생성자가 꼭 필요

@@ -2,7 +2,7 @@ package com.example.bank;
 
 import com.example.bank.domain.Account;
 import com.example.bank.repository.AccountRepository;
-import com.example.bank.service.TransferService;
+import com.example.bank.service.TransferFacade;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,21 +16,31 @@ import java.util.concurrent.Executors;
 public class TransferConcurrencyTest {
 
     @Autowired
-    private TransferService transferService;
+    private TransferFacade transferFacade;
 
     @Autowired
     private AccountRepository accountRepository;
 
     @BeforeEach
     void setUp(){
-        // 1번 계좌: 10,000원
-        Account from = accountRepository.findById(1L).orElseThrow();
-        from.deposit(10_000);
-        accountRepository.save(from);
+//        // 1번 계좌: 10,000원
+//        Account from = accountRepository.findById(1L).orElseThrow();
+//        from.deposit(10_000);
+//        accountRepository.save(from);
+//
+//        // 2번 계좌: 0원
+//        Account to = accountRepository.findById(2L).orElseThrow();
+//        to.deposit(0);
+//        accountRepository.save(to);
 
-        // 2번 계좌: 0원
-        Account to = accountRepository.findById(2L).orElseThrow();
-        to.deposit(0);
+        // 기존 데이터 삭제 (영속성 컨텍스트를 깨끗하게 비우기 위해)
+        accountRepository.deleteAll();
+
+        // 새 데이터 생성
+        Account from = new Account(10000); // 생성자에서 id와 balance 세팅
+        Account to = new Account(0);
+
+        accountRepository.save(from); // 여기서 version이 0으로 세팅됨
         accountRepository.save(to);
     }
 
@@ -43,7 +53,7 @@ public class TransferConcurrencyTest {
         for (int i = 0; i < threadCount; i++){
             executorService.submit(() -> {
                 try {
-                    transferService.transfer(1L, 2L, 100);
+                    transferFacade.transferWithRetry(1L, 2L, 100);
                 } catch (Exception e) {
                     System.out.println("송금 실패: " + e.getMessage());
                 }
