@@ -2,7 +2,7 @@ spring:
 
   datasource:
     hikari:
-      maximum-pool-size: 50 # 커넥션 풀이 모자라서 낙관적 락이 있어도 실패하는 경우 예방
+      maximum-pool-size: 5 # 커넥션 풀이 모자라서 낙관적 락이 있어도 실패하는 경우 예방
     url: jdbc:mysql://localhost:3306/bank
     username: bank
     password: bank
