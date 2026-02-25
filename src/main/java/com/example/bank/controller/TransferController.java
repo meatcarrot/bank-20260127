@@ -16,7 +16,7 @@ public class TransferController {
     public String transfer(@RequestParam Long fromId,
                            @RequestParam Long toId,
                            @RequestParam int amount) throws SystemException {
-        transferService.transfer(fromId, toId, amount);
+        transferService.requestTransfer(fromId, toId, amount);
         return "이체 완료";
     }
 

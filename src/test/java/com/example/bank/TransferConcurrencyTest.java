@@ -3,6 +3,7 @@ package com.example.bank;
 import com.example.bank.domain.Account;
 import com.example.bank.repository.AccountRepository;
 import com.example.bank.service.TransferFacade;
+import com.example.bank.service.TransferService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,9 @@ import java.util.concurrent.Executors;
 
 @SpringBootTest//(webEnvironment = SpringBootTest.WebEnvironment.NONE)
 public class TransferConcurrencyTest {
+
+    @Autowired
+    private TransferService transferService;
 
     @Autowired
     private TransferFacade transferFacade;
