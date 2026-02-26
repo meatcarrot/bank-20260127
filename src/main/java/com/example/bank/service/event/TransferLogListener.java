@@ -1,12 +1,10 @@
 package com.example.bank.service.event;
 
 
-import com.example.bank.domain.TransferLogEvent;
+import com.example.bank.domain.TransferCompletedEvent;
 import com.example.bank.service.LogService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -24,7 +22,7 @@ public class TransferLogListener {
     //@Transactional(propagation = Propagation.REQUIRES_NEW)
     // 다른 스레드가 되니까 새로운 트랜젝션 열 필요 없다
     // 커넥션 낭비임
-    public void handleTransferLog(TransferLogEvent event) {
+    public void handleTransferLog(TransferCompletedEvent event) {
         System.out.println("====송금 트랜젝션 완료 후 로그 기록 시작====");
         logService.logWithdraw();
     }

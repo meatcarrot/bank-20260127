@@ -1,26 +1,30 @@
 package com.example.bank.domain;
 
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDateTime;
+
 public class TransferCompletedEvent {
-
-    private final Long fromId;
-    private final Long toId;
+    private final Long fromAccountId;
+    private final Long toAccountId;
     private final int amount;
-    private final long createdAt;
+    private final LocalDateTime timestamp;
 
-    public TransferCompletedEvent(Long fromId, Long toId, int amount) {
-        this.fromId = fromId;
-        this.toId = toId;
+    public TransferCompletedEvent(Long fromAccountId, Long toAccountId, int amount, LocalDateTime now) {
+        this.fromAccountId = fromAccountId;
+        this.toAccountId = toAccountId;
         this.amount = amount;
-        this.createdAt = System.currentTimeMillis();
+        this.timestamp = LocalDateTime.now();
     }
 
     @Override
     public String toString() {
         return "TransferCompletedEvent{" +
-                "fromId=" + fromId +
-                ", toId=" + toId +
+                "fromAccountId=" + fromAccountId +
+                ", toAccountId=" + toAccountId +
                 ", amount=" + amount +
-                ", createdAt=" + createdAt +
+                ", timestamp=" + timestamp +
                 '}';
     }
+
 }
