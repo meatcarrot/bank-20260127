@@ -33,6 +33,7 @@ public class KafkaConfig {
 
 
     // "자바 언어를 카프카 언어로 번역하는 통역사"
+    // 자바 객체 -> JSON으로
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
@@ -48,6 +49,7 @@ public class KafkaConfig {
 
 
     // "우편물 발송 규정 정의하기"
+    // String -> byte로
     @Bean
     public ProducerFactory<String, String> producerFactory() {
         Map<String, Object> config = new HashMap<>();
