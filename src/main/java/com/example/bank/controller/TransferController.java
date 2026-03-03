@@ -1,7 +1,7 @@
 package com.example.bank.controller;
 
 import com.example.bank.service.TransferService;
-import com.example.bank.service.TransferService.SystemException;
+import com.example.bank.exception.SystemException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,7 +17,7 @@ public class TransferController {
                            @RequestParam Long toId,
                            @RequestParam Long amount) throws SystemException {
         transferService.requestTransfer(fromId, toId, amount);
-        return "이체 완료";
+        return "처리 완료";
     }
 
 }

@@ -46,6 +46,7 @@ public class TransferConsumer {
         }
         catch (Exception e) {
             log.error("송금 처리 중 예상하지 못한 에러 발생", e);
+            throw e;
         }
     }
 }

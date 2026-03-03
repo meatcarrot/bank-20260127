@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
         uniqueConstraints = @UniqueConstraint(
-                columnNames = {"transfer_id", "account_id", "type"}
+                columnNames = {"transaction_id", "account_id", "type"}
         )
 )
 public class AccountLedger {
@@ -21,8 +21,8 @@ public class AccountLedger {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "transfer_id", nullable = false, updatable = false)
-    private String transferId;
+    @Column(name = "transaction_id", nullable = false, updatable = false)
+    private String transactionId;
 
     @Column(name = "account_id", nullable = false, updatable = false)
     private Long accountId;
@@ -36,12 +36,12 @@ public class AccountLedger {
     private LocalDateTime createdAt;
 
     public AccountLedger(
-            String transferId,
+            String transactionId,
             Long accountId,
             EntryType type,
             Long amount
     ) {
-        this.transferId = transferId;
+        this.transactionId = transactionId;
         this.accountId = accountId;
         this.type = type;
         this.amount = amount;

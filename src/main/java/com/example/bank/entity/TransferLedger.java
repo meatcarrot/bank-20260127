@@ -48,4 +48,6 @@ public class TransferLedger {
     public void complete() {
         this.status = TransferStatus.SUCCESS;
     }
+    public void failed() {this.status = TransferStatus.FAILED;}
+
 }

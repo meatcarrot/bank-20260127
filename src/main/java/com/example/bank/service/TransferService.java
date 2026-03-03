@@ -8,6 +8,9 @@ import com.example.bank.entity.TransferLedger;
 import com.example.bank.entity.TransferStatus;
 import com.example.bank.event.TransferEvent;
 import com.example.bank.event.TransferProducer;
+import com.example.bank.exception.BuissnessException;
+import com.example.bank.exception.InsufficientBalanceExecption;
+import com.example.bank.exception.SystemException;
 import com.example.bank.repository.AccountLedgerRepository;
 import com.example.bank.repository.AccountRepository;
 import com.example.bank.repository.TransferLedgerRepository;
@@ -44,7 +47,7 @@ public class TransferService {
     }
 
 
-    public String requestTransfer(Long fromId, Long toId, Long amount) throws SystemException {
+    public void requestTransfer(Long fromId, Long toId, Long amount) throws SystemException {
 
         // 유효성 검사 (Fail-Fast): 카프카에 던지기 전에 최소한의 체크는 여기서!
         // 보내는 계좌가 존재하는지 정도는 여기서 확인하고 던지는 것이 좋습니다.
@@ -79,7 +82,6 @@ public class TransferService {
 
         transferProducer.send(event);
 
-        return transferId;
     }
 
     // rollbackFor을 통해서 시스템 예외는 롤백이 되도록
@@ -91,54 +93,78 @@ public class TransferService {
 
         log.info("실제 송금 처리 시작: ID={}", event.transferId());
 
-        // 0. AccountLedger 2줄 기록 (차변/대변)
-        saveAccountLedgers(event);
-
-        // 1. 실제 계좌 업데이트
-        // 1-1. 보내는 사람 계좌 조회
-        Account fromAccount = accountRepository.findById(event.fromAccountId())
-                .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
-        // 1-2. 받는 사람 계좌 조회
-        Account toAccount = accountRepository.findById(event.toAccountId())
-                .orElseThrow(()-> new IllegalArgumentException(("계좌 없음")));
-        // 1-3. 비지니스 로직 수행
-        fromAccount.withdraw(event.amount());
-        toAccount.deposit(event.amount());
-
-        // 2. TransferLedger(요청서) 상태 변경: PENDING -> SUCESS
         TransferLedger request = transferLedgerRepository.findById(event.transferId())
                 .orElseThrow(() -> new IllegalStateException("송금 요청 기록을 찾을 수 없습니다."));
-        request.complete();
 
-        // 3. (선택사항) 처리 완료 로그 남기기
-        log.info("송금 처리 완료! {}원이 {} -> {}로 이동했습니다",
-                event.amount(), fromAccount.getId(), toAccount.getId());
+        // processTransfer자체에 대한 멱등성 처리
+        if (request.getStatus() == TransferStatus.SUCCESS) {
+            return;
+        }
 
-        // 송금 성공 시에만 송금 완료 이벤트를 발행
-        eventPublisher.publishEvent(
-                new TransferCompletedEvent(
-                        fromAccount.getId(),
-                        toAccount.getId(),
-                        event.amount(),
-                        LocalDateTime.now()
-                )
-        );
+        // try-catch로 잔액 부족 / 충분 상황 분리
+        try {
+
+            // 1. 실제 계좌 업데이트
+            // 보내는 사람 계좌 조회
+            Account fromAccount = accountRepository.findById(event.fromAccountId())
+                    .orElseThrow(()-> new IllegalArgumentException("계좌 없음"));
+            // 받는 사람 계좌 조회
+            Account toAccount = accountRepository.findById(event.toAccountId())
+                    .orElseThrow(()-> new IllegalArgumentException(("계좌 없음")));
+
+            // 2. 비지니스 로직 수행
+            fromAccount.withdraw(event.amount());
+            toAccount.deposit(event.amount());
+
+            // 3. 성공한 경우에만 AccountLedger 2줄 기록 (차변/대변)
+            saveAccountLedgers(event);
+
+            // 3.5 시스템 예외 테스트
+//            if (true) {
+//                log.info("강제 시스템 장애 유도");
+//                throw new SystemException("강제 시스템 장애 테스트: ledger 저장 후 장애");
+//            }
+
+            // 4. TransferLedger(요청서) 상태 변경: PENDING -> SUCESS
+            request.complete();
+
+            // 5. (선택사항) 처리 완료 로그 남기기
+            log.info("송금 처리 완료! {}원이 {} -> {}로 이동했습니다",
+                    event.amount(), fromAccount.getId(), toAccount.getId());
+
+            // 송금 성공 시에만 송금 완료 이벤트를 발행
+            eventPublisher.publishEvent(
+                    new TransferCompletedEvent(
+                            fromAccount.getId(),
+                            toAccount.getId(),
+                            event.amount(),
+                            LocalDateTime.now()
+                    )
+            );
+
+
+        }
+        // 6. 출금 잔액이 모자란 경우
+        catch (InsufficientBalanceExecption e){
+
+            log.info("송금 잔액 부족");
+            // 실패를 기록한다
+            request.failed();
+            // 다시 throw 하지 않는다
+            return;
+        } catch (Exception e) {
+            log.info("예상치 못한 에러 발생, 재시도 ", e);
+            throw e;
+        }
+
+
+
 
 
     }
 
     // checked exception임. 이건 트랜젝션이 되지 않는다
-    public class SystemException  extends Exception {
-        public SystemException (String message) {
-            super(message);
-        }
-    }
 
-    public class BuissnessException extends Exception {
-        public BuissnessException(String message) {
-            super(message);
-        }
-    }
 
     private void saveAccountLedgers(TransferEvent event){
         // 출금 기록 (DEBIT)
