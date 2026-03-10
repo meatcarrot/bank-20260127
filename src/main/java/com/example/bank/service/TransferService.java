@@ -2,12 +2,12 @@ package com.example.bank.service;
 
 import com.example.bank.domain.Account;
 import com.example.bank.domain.TransferCompletedEvent;
-import com.example.bank.entity.AccountLedger;
-import com.example.bank.entity.EntryType;
-import com.example.bank.entity.TransferLedger;
-import com.example.bank.entity.TransferStatus;
+import com.example.bank.entity.*;
 import com.example.bank.event.TransferEvent;
-import com.example.bank.event.TransferProducer;
+import com.example.bank.infrastructure.messaging.OutboxCreatedEvent;
+import com.example.bank.repository.OutboxRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.bank.exception.BuissnessException;
 import com.example.bank.exception.InsufficientBalanceExecption;
 import com.example.bank.exception.SystemException;
@@ -30,23 +30,26 @@ public class TransferService {
 
     private final AccountRepository accountRepository;
     private final ApplicationEventPublisher eventPublisher;
-    private final TransferProducer transferProducer;
     private final AccountLedgerRepository accountLedgerRepository;
     private final TransferLedgerRepository transferLedgerRepository;
+    private final ObjectMapper objectMapper;
+    private final OutboxRepository outboxRepository;
 
     public TransferService(AccountRepository accountRepository,
                            ApplicationEventPublisher eventPublisher,
-                           TransferProducer transferProducer,
+                           ObjectMapper objectMapper,
                            TransferLedgerRepository transferLedgerRepository,
-                           AccountLedgerRepository accountLedgerRepository){
+                           AccountLedgerRepository accountLedgerRepository,
+                           OutboxRepository outboxRepository){
         this.accountRepository = accountRepository;
         this.eventPublisher = eventPublisher;
-        this.transferProducer = transferProducer;
+        this.objectMapper = objectMapper;
         this.transferLedgerRepository = transferLedgerRepository;
         this.accountLedgerRepository = accountLedgerRepository;
+        this.outboxRepository = outboxRepository;
     }
 
-
+    @Transactional
     public void requestTransfer(Long fromId, Long toId, Long amount) throws SystemException {
 
         // 유효성 검사 (Fail-Fast): 카프카에 던지기 전에 최소한의 체크는 여기서!
@@ -80,7 +83,34 @@ public class TransferService {
                 LocalDateTime.now()
         );
 
-        transferProducer.send(event);
+        try{
+            // 객체 -> JSON
+            String payload= objectMapper.writeValueAsString(event);
+
+            OutboxEvent outbox = OutboxEvent.create(
+                    "TRANSFER",
+                    transferId, // 거래 ID를 식별자로 사용
+                    "TransferCreated",
+                    payload
+                    );
+
+            // Ledger와 Outbox가 한 트랜잭션으로 저장됨!
+            // saveAndFlush()를 쓰면 더 확실하게 id를 확보
+            OutboxEvent saved = outboxRepository.saveAndFlush(outbox);
+
+            // 4. 즉시 발생 신호 (Relayer가 @TransactionalEventListener로 낚아챔)
+            // 객체 자체를 이벤트로 넘기는건 상태가 애매해질 수 있음
+            // 그래서 Id만 넘긴다
+            // 왜 굳이굳이 새로운 이벤트를 만들었냐 하면
+            // Long id를 넘기면 나중에 볼때 의미를 모를수도 잇어서
+            // 명확히 하려고 만들었다
+            eventPublisher.publishEvent(new OutboxCreatedEvent(saved.getId()));
+
+        } catch (JsonProcessingException e){
+            throw new SystemException("이벤트 직렬화 실패: " + e.getMessage());
+        }
+
+
 
     }
 
