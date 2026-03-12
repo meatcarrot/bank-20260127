@@ -14,6 +14,7 @@ import com.example.bank.exception.SystemException;
 import com.example.bank.repository.AccountLedgerRepository;
 import com.example.bank.repository.AccountRepository;
 import com.example.bank.repository.TransferLedgerRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import java.util.UUID;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class TransferService {
 
     private final AccountRepository accountRepository;
@@ -34,20 +36,6 @@ public class TransferService {
     private final TransferLedgerRepository transferLedgerRepository;
     private final ObjectMapper objectMapper;
     private final OutboxRepository outboxRepository;
-
-    public TransferService(AccountRepository accountRepository,
-                           ApplicationEventPublisher eventPublisher,
-                           ObjectMapper objectMapper,
-                           TransferLedgerRepository transferLedgerRepository,
-                           AccountLedgerRepository accountLedgerRepository,
-                           OutboxRepository outboxRepository){
-        this.accountRepository = accountRepository;
-        this.eventPublisher = eventPublisher;
-        this.objectMapper = objectMapper;
-        this.transferLedgerRepository = transferLedgerRepository;
-        this.accountLedgerRepository = accountLedgerRepository;
-        this.outboxRepository = outboxRepository;
-    }
 
     @Transactional
     public void requestTransfer(Long fromId, Long toId, Long amount) throws SystemException {
@@ -210,7 +198,7 @@ public class TransferService {
                 event.transferId(),
                 event.toAccountId(),
                 EntryType.CREDIT,
-                (long) event.amount()
+                event.amount()
         ));
     }
 

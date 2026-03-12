@@ -50,4 +50,11 @@ public class TransferLedger {
     }
     public void failed() {this.status = TransferStatus.FAILED;}
 
+    public void markCompensating() {
+        this.status = TransferStatus.COMPENSATING;
+    }
+
+    public void markCompensated() {
+        this.status = TransferStatus.COMPENSATED;
+    }
 }
