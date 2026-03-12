@@ -85,6 +85,7 @@ public class TransferService {
 
         try{
             // 객체 -> JSON
+            // 날짜 표현때문에 config의 커스텀 매퍼 사용
             String payload= objectMapper.writeValueAsString(event);
 
             OutboxEvent outbox = OutboxEvent.create(

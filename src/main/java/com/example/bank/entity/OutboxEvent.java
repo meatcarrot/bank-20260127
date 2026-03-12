@@ -26,9 +26,6 @@ public class OutboxEvent {
 
     private LocalDateTime createdAt;
 
-    public OutboxEvent(Long id) {
-    }
-
     public void markAsSent(){
         this.status = OutboxStatus.SENT;
     }
