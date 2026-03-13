@@ -41,9 +41,11 @@ public class OutboxRelayer {
 
     // 2. 주기적으로 전송 실패건도 재시도
     @Scheduled(fixedDelay = 5000)
-    public void retryFailedEvents(){
+    public void retryFailedEvents() {
         List<OutboxEvent> failedEvents = outboxRepository.findByStatus(OutboxStatus.PENDING);
-        for (OutboxEvent event : failedEvents){
+        log.info("Outbox 재시도 스케줄러 실행 - pending 건수={}", failedEvents.size());
+
+        for (OutboxEvent event : failedEvents) {
             sendToKafka(event);
         }
     }

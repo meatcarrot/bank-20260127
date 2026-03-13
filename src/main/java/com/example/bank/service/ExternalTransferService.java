@@ -28,6 +28,9 @@ public class ExternalTransferService {
         TransferLedger transfer = transferLedgerRepository.findById(transferId)
                 .orElseThrow(() -> new IllegalArgumentException("송금 요청이 존재하지 않습니다."));
 
+        log.info("보상 대상 현재 상태: transferId={}, status={}",
+                transferId, transfer.getStatus());
+
         if (transfer.getStatus() == TransferStatus.SUCCESS) {
             log.warn("이미 성공한 거래라 보상 불가: transferId={}", transferId);
             return;
@@ -44,6 +47,9 @@ public class ExternalTransferService {
                         transfer.getFromAccountId(),
                         EntryType.CREDIT
                 );
+
+        log.info("기존 보상 ledger 존재 여부: transferId={}, exists={}",
+                transferId, alreadyCompensatedLedger);
 
         if (alreadyCompensatedLedger) {
             transfer.markCompensated();
