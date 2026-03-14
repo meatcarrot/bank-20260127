@@ -1,25 +1,23 @@
 package com.example.bank.controller;
 
-import com.example.bank.domain.Account;
-import com.example.bank.repository.AccountRepository;
-import com.example.bank.service.TransferService;
+import com.example.bank.transfer.TransferService;
+import com.example.bank.exception.SystemException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class TransferController {
     private final TransferService transferService;
 
-    public TransferController() {
-        this.transferService =
-                new TransferService(new com.example.bank.repository.AccountRepository());
+    public TransferController(TransferService transferService) {
+        this.transferService = transferService;
     }
 
     @PostMapping("/transfer")
     public String transfer(@RequestParam Long fromId,
                            @RequestParam Long toId,
-                           @RequestParam int amount) {
-        transferService.transfer(fromId, toId, amount);
-        return "이체 완료";
+                           @RequestParam Long amount) throws SystemException {
+        transferService.requestTransfer(fromId, toId, amount);
+        return "처리 완료";
     }
 
 }

@@ -1,5 +1,5 @@
 HELP.md
-.gradle
+###.gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
@@ -11,7 +11,6 @@ build/
 .classpath
 .factorypath
 .project
-.settings
 .springBeans
 .sts4-cache
 bin/

@@ -1,0 +1,1 @@
+POST http://localhost:8080/transfer?fromId=1&toId=2&amount=10000
