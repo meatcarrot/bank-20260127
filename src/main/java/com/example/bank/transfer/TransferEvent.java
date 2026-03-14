@@ -1,7 +1,4 @@
-package com.example.bank.event;
-
-import com.example.bank.entity.TransferStatus;
-import lombok.Getter;
+package com.example.bank.transfer;
 
 import java.time.LocalDateTime;
 

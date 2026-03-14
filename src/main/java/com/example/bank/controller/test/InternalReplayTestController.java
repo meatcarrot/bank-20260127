@@ -1,9 +1,9 @@
-package com.example.bank.controller;
+package com.example.bank.controller.test;
 
-import com.example.bank.entity.TransferLedger;
-import com.example.bank.entity.TransferStatus;
-import com.example.bank.event.TransferEvent;
-import com.example.bank.repository.TransferLedgerRepository;
+import com.example.bank.transfer.TransferLedger;
+import com.example.bank.transfer.TransferStatus;
+import com.example.bank.transfer.TransferEvent;
+import com.example.bank.transfer.TransferLedgerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PostMapping;

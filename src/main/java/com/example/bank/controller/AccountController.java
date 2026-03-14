@@ -1,7 +1,7 @@
 package com.example.bank.controller;
 
 import com.example.bank.domain.Account;
-import com.example.bank.repository.AccountRepository;
+import com.example.bank.account.AccountRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

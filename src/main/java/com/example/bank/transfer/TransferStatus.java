@@ -1,4 +1,4 @@
-package com.example.bank.entity;
+package com.example.bank.transfer;
 
 public enum TransferStatus {
     PENDING,

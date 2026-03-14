@@ -1,6 +1,5 @@
-package com.example.bank.service;
+package com.example.bank.transfer;
 
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Component;
 
 @Component

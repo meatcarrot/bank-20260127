@@ -1,4 +1,4 @@
-package com.example.bank.entity;
+package com.example.bank.ledger;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

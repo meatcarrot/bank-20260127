@@ -1,19 +1,11 @@
-package com.example.bank.infrastructure.messaging;
+package com.example.bank.outbox;
 
 
-import com.example.bank.entity.OutboxStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.bank.entity.OutboxEvent;
-import com.example.bank.repository.OutboxRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 

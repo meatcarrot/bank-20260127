@@ -1,6 +1,5 @@
-package com.example.bank.entity;
+package com.example.bank.transfer;
 
-import com.example.bank.entity.TransferStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

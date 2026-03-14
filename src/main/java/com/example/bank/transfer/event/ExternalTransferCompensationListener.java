@@ -1,7 +1,6 @@
-package com.example.bank.service.event;
+package com.example.bank.transfer.event;
 
-import com.example.bank.event.ExternalDepositFailedEvent;
-import com.example.bank.service.ExternalTransferService;
+import com.example.bank.transfer.ExternalTransferService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;

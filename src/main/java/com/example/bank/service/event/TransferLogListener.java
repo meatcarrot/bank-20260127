@@ -1,7 +1,7 @@
 package com.example.bank.service.event;
 
 
-import com.example.bank.domain.TransferCompletedEvent;
+import com.example.bank.transfer.TransferCompletedEvent;
 import com.example.bank.service.LogService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;

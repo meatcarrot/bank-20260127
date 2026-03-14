@@ -1,14 +1,10 @@
-package com.example.bank.service;
+package com.example.bank.transfer;
 
-import com.example.bank.entity.AccountLedger;
-import com.example.bank.entity.EntryType;
-import com.example.bank.entity.TransferLedger;
-import com.example.bank.entity.TransferStatus;
-import com.example.bank.repository.AccountLedgerRepository;
-import com.example.bank.repository.TransferLedgerRepository;
+import com.example.bank.ledger.AccountLedger;
+import com.example.bank.ledger.EntryType;
+import com.example.bank.ledger.AccountLedgerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,9 +1,9 @@
 package com.example.bank;
 
 import com.example.bank.domain.Account;
-import com.example.bank.repository.AccountRepository;
-import com.example.bank.service.TransferFacade;
-import com.example.bank.service.TransferService;
+import com.example.bank.account.AccountRepository;
+import com.example.bank.transfer.TransferFacade;
+import com.example.bank.transfer.TransferService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

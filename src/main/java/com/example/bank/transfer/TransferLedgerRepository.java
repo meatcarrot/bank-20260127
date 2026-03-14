@@ -1,7 +1,5 @@
-package com.example.bank.repository;
+package com.example.bank.transfer;
 
-import com.example.bank.entity.AccountLedger;
-import com.example.bank.entity.TransferLedger;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

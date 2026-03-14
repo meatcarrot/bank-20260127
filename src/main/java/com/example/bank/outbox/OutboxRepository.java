@@ -1,8 +1,5 @@
-package com.example.bank.repository;
+package com.example.bank.outbox;
 
-import com.example.bank.domain.Account;
-import com.example.bank.entity.OutboxEvent;
-import com.example.bank.entity.OutboxStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,6 +1,4 @@
-package com.example.bank.domain;
-
-import org.springframework.cglib.core.Local;
+package com.example.bank.transfer;
 
 import java.time.LocalDateTime;
 

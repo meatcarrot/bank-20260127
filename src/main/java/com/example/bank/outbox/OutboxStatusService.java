@@ -1,6 +1,5 @@
-package com.example.bank.infrastructure.messaging;
+package com.example.bank.outbox;
 
-import com.example.bank.repository.OutboxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

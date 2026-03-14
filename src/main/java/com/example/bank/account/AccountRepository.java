@@ -1,4 +1,4 @@
-package com.example.bank.repository;
+package com.example.bank.account;
 
 import com.example.bank.domain.Account;
 import jakarta.persistence.LockModeType;

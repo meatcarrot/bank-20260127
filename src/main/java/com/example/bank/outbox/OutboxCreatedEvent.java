@@ -1,4 +1,4 @@
-package com.example.bank.infrastructure.messaging;
+package com.example.bank.outbox;
 
 public record OutboxCreatedEvent(Long outboxId) {
 }

@@ -1,9 +1,8 @@
-package com.example.bank.controller;
+package com.example.bank.controller.test;
 
-import com.example.bank.entity.TransferLedger;
-import com.example.bank.entity.TransferStatus;
-import com.example.bank.event.ExternalDepositFailedEvent;
-import com.example.bank.repository.TransferLedgerRepository;
+import com.example.bank.transfer.TransferLedger;
+import com.example.bank.transfer.event.ExternalDepositFailedEvent;
+import com.example.bank.transfer.TransferLedgerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.web.bind.annotation.*;

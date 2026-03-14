@@ -1,6 +1,6 @@
 package com.example.bank.controller;
 
-import com.example.bank.service.TransferService;
+import com.example.bank.transfer.TransferService;
 import com.example.bank.exception.SystemException;
 import org.springframework.web.bind.annotation.*;
 

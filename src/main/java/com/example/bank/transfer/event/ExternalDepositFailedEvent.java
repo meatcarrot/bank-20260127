@@ -1,4 +1,4 @@
-package com.example.bank.event;
+package com.example.bank.transfer.event;
 
 import java.time.LocalDateTime;
 
