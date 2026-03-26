@@ -1,8 +1,10 @@
 package com.example.bank.controller;
 
+import com.example.bank.DTO.TransferRequest;
 import com.example.bank.transfer.TransferService;
 import com.example.bank.exception.SystemException;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 @RestController
 public class TransferController {
@@ -13,10 +15,12 @@ public class TransferController {
     }
 
     @PostMapping("/transfer")
-    public String transfer(@RequestParam Long fromId,
-                           @RequestParam Long toId,
-                           @RequestParam Long amount) throws SystemException {
-        transferService.requestTransfer(fromId, toId, amount);
+    public String transfer(@RequestBody @Valid TransferRequest request) throws SystemException {
+        transferService.requestTransfer(
+                request.fromId(),
+                request.toId(),
+                request.amount()
+        );
         return "처리 완료";
     }
 

@@ -30,3 +30,5 @@ services:
       MYSQL_DATABASE: bank
       MYSQL_USER: bank
       MYSQL_PASSWORD: bank
+    volumes:
+      - ./mysql-data:/var/lib/mysql
