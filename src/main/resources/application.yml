@@ -1,6 +1,6 @@
 spring:
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
@@ -19,9 +19,9 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 50
-    url: jdbc:mysql://localhost:3306/bank
-    username: bank
-    password: bank
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/bank}
+    username: ${SPRING_DATASOURCE_USERNAME:bank}
+    password: ${SPRING_DATASOURCE_PASSWORD:bank}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:

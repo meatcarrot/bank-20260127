@@ -5,6 +5,7 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class KafkaConfig {
 
     public static final String TRANSFER_TOPIC = "transfer-topic";
+    private final String bootstrapServers;
 
     //"우체국에 새로운 사물함 만들기"
     @Bean
@@ -33,6 +35,11 @@ public class KafkaConfig {
     }
     // 왜 하나요? 애플리케이션이 켜질 때 카프카 서버에 접속해서
     // "송금 데이터 담을 방 하나 만들어놔!"라고 미리 주문을 넣는 겁니다.
+
+    // docker compose 에서 환경변수로 kafka 주소를 받아서 사용하도록 변경
+    public KafkaConfig(@Value("${spring.kafka.bootstrap-servers}") String bootstrapServers) {
+        this.bootstrapServers = bootstrapServers;
+    }
 
 
     // "자바 언어를 카프카 언어로 번역하는 통역사"
@@ -58,7 +65,7 @@ public class KafkaConfig {
         Map<String, Object> config = new HashMap<>();
 
         // 1. 어디로 보낼까? (카프카 서버 주소)
-        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         // 2. 메시지 머리표(Key)는 어떤 형식? (글자니까 String)
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         // 3. 메시지 내용(Value)은 어떤 형식? (JSON 문자열로 보낼 거니까 String)
@@ -93,7 +100,7 @@ public class KafkaConfig {
         Map<String, Object> config = new HashMap<>();
 
         // 1. 어디서 가져올까? (카프카 서버 주소)
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 
         // 2. 내 이름표(명찰)는 무엇인가? (Consumer Group ID)
         // 이 이름이 같아야 카프카가 "아, 님이 어제 거기까지 읽었지!"라고 기억해줍니다.
