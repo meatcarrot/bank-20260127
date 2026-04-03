@@ -30,7 +30,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: 테스트 실행
-        run: ./gradlew clean test -DexcludedTags=integration
+        run: ./gradlew clean test -Djunit.jupiter.excludeTags=integration
 
       - name: JAR 빌드
         run: ./gradlew bootJar
