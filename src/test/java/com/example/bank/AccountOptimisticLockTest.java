@@ -5,6 +5,7 @@ import com.example.bank.domain.Account;
 import jakarta.persistence.OptimisticLockException;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 @Import(AccountOptimisticLockTest.TestConfig.class)
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
+@Tag("integration")
 class AccountOptimisticLockTest {
 
     @Autowired
