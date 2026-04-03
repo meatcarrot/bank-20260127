@@ -1,6 +1,6 @@
 package com.example.bank.domain;
 
-import com.example.bank.exception.InsufficientBalanceExecption;
+import com.example.bank.exception.InsufficientBalanceException;
 import jakarta.persistence.*;
 import org.hibernate.annotations.DialectOverride;
 
@@ -43,7 +43,7 @@ public class Account {
             throw new IllegalArgumentException("인출액은 0원 이상");
         }
         if (balance < amount){
-            throw new InsufficientBalanceExecption("잔액부족");
+            throw new InsufficientBalanceException("잔액부족");
         }
         balance -= amount;
     }
