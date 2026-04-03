@@ -43,7 +43,18 @@ services:
       retries: 10
       start_period: 20s
 
-  bank-app:
+  nginx:
+    image: nginx:stable
+    depends_on:
+      - app1
+      - app2
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/bank.conf:/etc/nginx/conf.d/bank.conf:ro
+      - /var/www/bank-static:/var/www/bank-static:ro
+
+  app1:
     image: bank-app:20260402
     depends_on:
       mysql:
@@ -55,5 +66,22 @@ services:
       SPRING_DATASOURCE_USERNAME: bank
       SPRING_DATASOURCE_PASSWORD: bank
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_INSTANCE_ID: app1
     ports:
-      - "8080:8080"
+      - "8081:8080"
+
+  app2:
+    image: bank-app:20260402
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bank
+      SPRING_DATASOURCE_USERNAME: bank
+      SPRING_DATASOURCE_PASSWORD: bank
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_INSTANCE_ID: app2
+    ports:
+      - "8082:8080"

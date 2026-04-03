@@ -1,12 +1,13 @@
 HELP.md
-###.gradle
+
+# Gradle
+.gradle/
 build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-/build
 
-### STS ###
+# STS
 .apt_generated
 .classpath
 .factorypath
@@ -17,23 +18,33 @@ bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
 
-### IntelliJ IDEA ###
-.idea
-/.idea
+# IntelliJ IDEA
+.idea/
 *.iws
 *.iml
 *.ipr
 out/
-/out
 !**/src/main/**/out/
 !**/src/test/**/out/
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# VS Code
 .vscode/
+
+# Docker / runtime data
+mysql-data/
+kafka-data/
+
+# Logs
+logs/
+*.log
+
+# Env
+.env
+.env.*
