@@ -16,7 +16,7 @@
     public class TransferConsumer {
 
         private final ObjectMapper objectMapper;
-        private final TransferService transferService;
+        private final TransferFacade transferFacade;
 
         @KafkaListener(
                 topics = "transfer-topic",
@@ -31,7 +31,7 @@
 
                 // 2. 실제 DB 처리를 위해 서비스로 전달
                 // 핵심 비지니스 로직은 서비스에 위임한다
-                transferService.processTransfer(event);
+                transferFacade.processTransferWithRetry(event);
 
                 // 3. 서비스가 에러 없이 끝나면 ACK
                 ack.acknowledge();

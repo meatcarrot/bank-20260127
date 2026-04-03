@@ -55,7 +55,7 @@ services:
       - /var/www/bank-static:/var/www/bank-static:ro
 
   app1:
-    image: bank-app:20260402
+    image: bank-app:20260403
     depends_on:
       mysql:
         condition: service_healthy
@@ -71,7 +71,7 @@ services:
       - "8081:8080"
 
   app2:
-    image: bank-app:20260402
+    image: bank-app:20260403
     depends_on:
       mysql:
         condition: service_healthy

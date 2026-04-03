@@ -8,14 +8,15 @@ import com.example.bank.outbox.OutboxEvent;
 import com.example.bank.outbox.OutboxRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.example.bank.exception.BuissnessException;
-import com.example.bank.exception.InsufficientBalanceExecption;
+import com.example.bank.exception.BusinessException;
+import com.example.bank.exception.InsufficientBalanceException;
 import com.example.bank.exception.SystemException;
 import com.example.bank.ledger.AccountLedgerRepository;
 import com.example.bank.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -106,7 +107,7 @@ public class TransferService {
     // noRollBackFor를 통해서 비지니스적 예외는 롤백 안 되도록
     @Transactional(
             rollbackFor = SystemException.class,
-            noRollbackFor = BuissnessException.class)
+            noRollbackFor = BusinessException.class)
     public void processTransfer(TransferEvent event){
 
         log.info("실제 송금 처리 시작: ID={}", event.transferId());
@@ -163,7 +164,7 @@ public class TransferService {
 
         }
         // 6. 출금 잔액이 모자란 경우
-        catch (InsufficientBalanceExecption e){
+        catch (InsufficientBalanceException e){
 
             log.info("송금 잔액 부족");
             // 실패를 기록한다
