@@ -51,11 +51,11 @@ services:
     ports:
       - "80:80"
     volumes:
-      - ./infra/nginx/bank.conf:/etc/nginx/conf.d/bank.conf:ro
-      - /var/www/bank-static:/var/www/bank-static:ro
+      - ./infra/nginx/bank.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/static:/var/www/bank-static:ro
 
   app1:
-    image: bank-app:20260403
+    image: meatcarrot/bank-app:20260407
     depends_on:
       mysql:
         condition: service_healthy
@@ -71,7 +71,7 @@ services:
       - "8081:8080"
 
   app2:
-    image: bank-app:20260403
+    image: meatcarrot/bank-app:20260407
     depends_on:
       mysql:
         condition: service_healthy

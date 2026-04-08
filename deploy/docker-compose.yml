@@ -1,0 +1,93 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_HEAP_OPTS: "-Xms256m -Xmx256m"
+      # AWS 인스턴스 메모리 부족으로 제한을 건다
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: bank
+      MYSQL_DATABASE: bank
+      MYSQL_USER: bank
+      MYSQL_PASSWORD: bank
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -ubank -pbank || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  nginx:
+    image: nginx:stable
+    depends_on:
+      - app1
+      #- app2
+      # EC2 자원 모자라니까 일단 앱 1개 띄우기
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/bank.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./infra/nginx/static:/var/www/bank-static:ro
+
+  app1:
+    image: meatcarrot/bank-app:20260408
+    depends_on:
+      mysql:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bank
+      SPRING_DATASOURCE_USERNAME: bank
+      SPRING_DATASOURCE_PASSWORD: bank
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_INSTANCE_ID: app1
+    ports:
+      - "8081:8080"
+
+#  app2:
+#    image: meatcarrot/bank-app:20260408
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
+#      kafka:
+#        condition: service_healthy
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/bank
+#      SPRING_DATASOURCE_USERNAME: bank
+#      SPRING_DATASOURCE_PASSWORD: bank
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+#      APP_INSTANCE_ID: app2
+#    ports:
+#      - "8082:8080"
+
+volumes:
+  mysql-data:
