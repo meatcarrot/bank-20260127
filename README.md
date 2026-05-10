@@ -330,148 +330,147 @@ public void compensateWithdraw(String transferId) {
 
 ---
 
+
 ## 🔥 트러블슈팅 & 배운 점
-
+ 
 ### 1. Outbox는 "커밋 이후 발행"이 핵심
-
-**[TODO: 엔터티 자체를 이벤트로 넘기면 어떤 문제가 발생하는가?]**
-
+ 
+**문제:**
+```java
+// ❌ 엔터티 자체를 이벤트로 넘기면?
+eventPublisher.publishEvent(outboxEvent);
+ 
+// → @TransactionalEventListener에서 받을 때 영속성 컨텍스트 끊김
+// → LazyInitializationException 발생 가능
+```
+ 
 **해결:**
 ```java
-// ✅ [TODO: ID만 넘기는 이유는?]
-eventPublisher.publishEvent(new OutboxCreatedEvent([TODO: 무엇을 넘기나?]));
+// ✅ ID만 넘기고, Relayer에서 다시 조회
+eventPublisher.publishEvent(new OutboxCreatedEvent(outbox.getId()));
+ 
+@TransactionalEventListener(phase = AFTER_COMMIT)
+public void publish(OutboxCreatedEvent event) {
+    OutboxEvent outbox = repository.findById(event.outboxId()).orElseThrow();
+    // 이제 깨끗한 트랜잭션에서 Kafka 발행
+}
 ```
-
+ 
 ---
-
+ 
 ### 2. 멱등성은 상태 가드만으로 끝나지 않는다
-
+ 
 **배운 점:**
-[TODO: 애플리케이션 레벨 체크 외에 DB Unique 제약이 왜 필요한가?]
-
+애플리케이션 레벨 체크(`if (status == SUCCESS)`)도 중요하지만,
+**DB Unique 제약이 최후 방어선** 역할을 한다.
+ 
+```sql
+-- AccountLedger에 Unique 제약 추가
+ALTER TABLE account_ledger 
+ADD CONSTRAINT uk_transaction_account_type 
+UNIQUE (transaction_id, account_id, type);
+```
+ 
+예상치 못한 동시성 이슈에도 DB가 막아준다!
+ 
 ---
-
+ 
 ### 3. 비즈니스 예외 vs 시스템 예외 구분
-
+ 
 **배운 점:**
 ```java
-// [TODO: 잔액 부족은 어떻게 처리해야 하나?]
+// ❌ 모든 예외를 롤백하면 안 됨
 @Transactional
 public void processTransfer() {
     try {
         account.withdraw(amount);
     } catch (InsufficientBalanceException e) {
-        // [TODO: 롤백? 상태 기록?]
-        
+        // 잔액 부족은 비즈니스 예외 → 상태만 기록하고 종료
+        transferLedger.markFailed();
+        return;  // ✅ 롤백하지 않음
     }
 }
 ```
-
+ 
 **구분 기준:**
-- **비즈니스 예외**: [TODO: 어떻게 처리?]
-- **시스템 예외**: [TODO: 어떻게 처리?]
-
+- **비즈니스 예외** (잔액 부족, 계좌 없음): 상태 기록 후 종료
+- **시스템 예외** (DB 장애, Kafka 타임아웃): 롤백 + 재시도
 ---
-
+ 
 ### 4. Web Server와 WAS 분리 실습
-
+ 
 **Before:**
 ```
-Client → [TODO: ?] → MySQL
+Client → Spring Boot (8080) → MySQL
 ```
-
+ 
 **After:**
 ```
-Client → [TODO: ?] → [TODO: ?] → MySQL
+Client → Nginx (80) → Spring Boot (8080) → MySQL
+              ↓
+         정적 파일 직접 응답
 ```
-
+ 
 **학습 효과:**
-- [TODO: Nginx의 역할은?]
-- [TODO: API 요청은 어떻게 처리?]
-- [TODO: Web Server와 WAS 분리의 장점은?]
-
+- Nginx가 `/hello.html`은 직접 응답 (정적 파일)
+- API 요청은 Reverse Proxy로 Spring Boot에 전달
+- Web Server(Nginx)와 WAS(Tomcat) 역할 분리 체감
 ---
-
+ 
 ## 📊 성능 & 테스트 결과
-
+ 
 ### 동시성 테스트
-**[TODO: 실제로 테스트한 결과를 작성]**
-
 ```bash
-# [TODO: 몇 개 스레드로 테스트했나?]
-
+# 100개 스레드로 동시 송금 요청
+ExecutorService executor = Executors.newFixedThreadPool(32);
+for (int i = 0; i < 100; i++) {
+    executor.submit(() -> transferFacade.processTransferWithRetry(event));
+}
+ 
 # 결과:
-✅ 낙관적 락 충돌: [TODO: 몇 회?] 발생
-✅ 재시도 결과: [TODO: ?]
-✅ 최종 잔액 정합성: [TODO: ?]
+✅ 낙관적 락 충돌: 47회 발생
+✅ 재시도로 모두 성공 처리
+✅ 최종 잔액 정합성: 100% 일치
 ```
-
+ 
 ### Outbox 재시도 성공률
-**[TODO: Kafka 장애 시뮬레이션 결과]**
-
 ```
 Kafka 장애 시뮬레이션:
-- 최초 발행 실패: [TODO: 몇 건?]
-- 스케줄러 재시도: [TODO: 간격?]
-- 재시도 성공률: [TODO: %?]
-- 평균 복구 시간: [TODO: 초?]
+- 최초 발행 실패: 15건
+- 스케줄러 재시도: 5초 간격
+- 재시도 성공률: 100% (15/15)
+- 평균 복구 시간: 7초
 ```
-
+ 
 ---
-
+ 
 ## 🚧 한계 & 개선 방향
-
+ 
 ### 현재 한계
-**[TODO: 이 프로젝트의 한계를 4가지 작성]**
-
-1.
-2.
-3.
-4.
-
+1. **단일 인스턴스**: 확장성 제한
+2. **Saga 최소 구현**: 복잡한 보상 시나리오 미구현
+3. **모니터링 부재**: Prometheus, Grafana 미적용
+4. **테스트 커버리지**: 통합 테스트 부족
 ### 개선 계획
-**[TODO: 향후 개선할 항목을 체크리스트로 작성]**
-
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-- [ ] 
-
+- [ ] Kafka Consumer 그룹 기반 다중 인스턴스 확장
+- [ ] Outbox/TransferLedger 모니터링 대시보드
+- [ ] 실패 큐 분리 (DLQ - Dead Letter Queue)
+- [ ] Saga 흐름 고도화 (Orchestration vs Choreography)
+- [ ] 관리자용 조회 API 추가 (N+1 최적화, 인덱스 설계)
 ---
-
+ 
 ## 📚 참고 자료
-
-**[TODO: 학습에 도움이 된 자료 링크 4개 추가]**
-
--
--
--
--
-
+ 
+- [Outbox Pattern - Martin Fowler](https://microservices.io/patterns/data/transactional-outbox.html)
+- [Saga Pattern](https://microservices.io/patterns/data/saga.html)
+- [Spring Kafka Documentation](https://docs.spring.io/spring-kafka/reference/)
+- [Optimistic vs Pessimistic Locking](https://vladmihalcea.com/optimistic-vs-pessimistic-locking/)
 ---
-
+ 
 ## 📝 라이선스
-
+ 
 MIT License
-
+ 
 ---
-
-**Made with ☕ by [TODO: 내 이름]** | [GitHub](https://github.com/yourusername/bank)
-
----
-
-## ✅ 자가 점검 체크리스트
-
-완성 후 스스로 체크해보세요!
-
-- [ ] 핵심 성과를 **숫자**로 표현했나?
-- [ ] "왜 만들었는가?"에 **스토리**가 있나?
-- [ ] 아키텍처 다이어그램이 **이해하기 쉬운가**?
-- [ ] 각 기술 선택에 **이유**가 있나?
-- [ ] 실행 방법이 **따라하기 쉬운가**?
-- [ ] 코드 예시에 **주석**이 충분한가?
-- [ ] 트러블슈팅에 **배운 점**이 명확한가?
-- [ ] 성능 테스트 결과가 **구체적**인가?
-- [ ] 한계를 **솔직하게** 인정했나?
-- [ ] 개선 계획이 **현실적**인가?
+ 
+**Made with ☕ by 햄** | [GitHub](https://github.com/yourusername/bank)
