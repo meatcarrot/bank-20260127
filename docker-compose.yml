@@ -1,3 +1,6 @@
+volumes:
+  mysql-data:
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -35,7 +38,7 @@ services:
       MYSQL_USER: bank
       MYSQL_PASSWORD: bank
     volumes:
-      - ./mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -ubank -pbank || exit 1"]
       interval: 10s
@@ -55,7 +58,7 @@ services:
       - ./infra/nginx/static:/var/www/bank-static:ro
 
   app1:
-    image: meatcarrot/bank-app:20260414
+    image: meatcarrot/bank-app:20260616
     depends_on:
       mysql:
         condition: service_healthy
@@ -71,7 +74,7 @@ services:
       - "8081:8080"
 
   app2:
-    image: meatcarrot/bank-app:20260414
+    image: meatcarrot/bank-app:20260616
     depends_on:
       mysql:
         condition: service_healthy
