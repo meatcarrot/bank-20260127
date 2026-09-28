@@ -2,7 +2,6 @@ package com.example.bank.domain;
 
 import com.example.bank.exception.InsufficientBalanceException;
 import jakarta.persistence.*;
-import org.hibernate.annotations.DialectOverride;
 
 @Entity
 @Table(name = "account")
@@ -12,47 +11,60 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private Long userId;
+
     private Long balance;
 
-    //낙관적 락을 위한 버전 정보 추가
+    // 낙관적 락을 위한 버전 정보
     @Version
     private Long version = 0L;
 
-    // DB -> 객체로 복원함
-    // 그래서 JPA는 기본 생성자가 꼭 필요
-    // JPA를 위한 생성자는 열어두되, 외부에서 막 쓰는 건 막는다.
-    // private는 JPA가 접근을 못함
     protected Account() {
-
     }
 
-    public Account(Long balance) {
+    public Account(Long userId, Long balance) {
+        if (userId == null) {
+            throw new IllegalArgumentException("userId는 필수입니다");
+        }
+
+        if (balance == null || balance < 0) {
+            throw new IllegalArgumentException("잔액은 0원 이상이어야 합니다");
+        }
+
+        this.userId = userId;
         this.balance = balance;
     }
 
-    public Long getId(){
+    public Long getId() {
         return id;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public Long getBalance() {
         return balance;
     }
 
-    public void withdraw(Long amount){
-        if (amount <= 0){
+    public void withdraw(Long amount) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("인출액은 0원 이상");
         }
-        if (balance < amount){
+
+        if (balance < amount) {
             throw new InsufficientBalanceException("잔액부족");
         }
+
         balance -= amount;
     }
 
-    public void deposit(Long amount){
-        if (amount < 0){
+    public void deposit(Long amount) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("입금액은 0원 이상");
         }
+
         this.balance += amount;
     }
-
 }

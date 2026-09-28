@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.bank.exception.BusinessException;
 import com.example.bank.exception.InsufficientBalanceException;
 import com.example.bank.exception.SystemException;
+import com.example.bank.exception.AccountAccessDeniedException;
 import com.example.bank.ledger.AccountLedgerRepository;
 import com.example.bank.account.AccountRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,15 +39,29 @@ public class TransferService {
     private final OutboxRepository outboxRepository;
 
     @Transactional
-    public void requestTransfer(Long fromId, Long toId, Long amount) throws SystemException {
+    public void requestTransfer(
+            Long loginUserId,
+            Long fromId,
+            Long toId,
+            Long amount
+    ) throws SystemException {
 
-        // 유효성 검사 (Fail-Fast): 카프카에 던지기 전에 최소한의 체크는 여기서!
-        // 보내는 계좌가 존재하는지 정도는 여기서 확인하고 던지는 것이 좋습니다.
+        // 1. 보내는 계좌 존재 여부 확인
         if (!accountRepository.existsById(fromId)) {
             throw new IllegalArgumentException("보내는 계좌가 존재하지 않습니다.");
         }
 
-        // 1. 유니크한 거래 ID 생성
+        // 2. 현재 로그인 사용자가 해당 출금 계좌의 소유자인지 확인
+        boolean isOwner =
+                accountRepository.existsByIdAndUserId(fromId, loginUserId);
+
+        if (!isOwner) {
+            throw new AccountAccessDeniedException(
+                    "본인 계좌에서만 송금할 수 있습니다."
+            );
+        }
+
+        // 3. 여기까지 통과한 정상 요청만 거래 ID 생성
         String transferId = UUID.randomUUID().toString();
 
         // 2. [추가] 거래 요청서(TransferLedger) 생성 및 저장

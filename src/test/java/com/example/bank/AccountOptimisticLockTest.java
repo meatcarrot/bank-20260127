@@ -47,7 +47,7 @@ class AccountOptimisticLockTest {
         accountRepository.deleteAll();
 
         // 네 Account 생성 방식에 맞게 수정 필요할 수 있음
-        Account account = new Account(10000L);
+        Account account = new Account(1L, 10000L);
         Account saved = accountRepository.save(account);
         accountId = saved.getId();
     }

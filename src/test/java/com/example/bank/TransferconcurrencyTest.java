@@ -60,13 +60,13 @@ class TransferConcurrency100Test {
         transferLedgerRepository.deleteAll();
         accountRepository.deleteAll();
 
-        // 1번 계좌: 10,000원
-        Account from = new Account(10000L);
+        // 1번 사용자 소유 계좌: 10,000원
+        Account from = new Account(1L, 10000L);
         Account savedFrom = accountRepository.save(from);
         fromAccountId = savedFrom.getId();
 
-        // 2번 계좌: 0원
-        Account to = new Account(0L);
+        // 2번 사용자 소유 계좌: 0원
+        Account to = new Account(2L, 0L);
         Account savedTo = accountRepository.save(to);
         toAccountId = savedTo.getId();
 
