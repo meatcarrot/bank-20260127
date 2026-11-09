@@ -37,7 +37,7 @@ public class InternalReplayTestController {
 
         kafkaTemplate.send(
                 "transfer-topic",
-                transfer.getTransferId(),
+                String.valueOf(transfer.getFromAccountId()),
                 objectMapper.writeValueAsString(event)
         );
 

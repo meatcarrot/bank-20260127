@@ -86,11 +86,15 @@ to do
 ### 1. 사전 준비
 ```bash
 # 필수 요구사항
-- Java 17
+- Java 21
 - Docker & Docker Compose
 ```
 
 ### 2. 인프라 실행
+
+애플리케이션 이미지는 `meatcarrot/bank-app:20261110-account-key`를 사용합니다.
+기존 환경을 교체하기 전 [Kafka Key 전환 주의사항](docs/kafka-account-partitioning.md)을 확인하세요.
+
 ```bash
 # Kafka, MySQL, Nginx 컨테이너 실행
 docker compose up -d

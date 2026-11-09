@@ -16,6 +16,8 @@ public class OutboxEvent {
 
     private String aggregateType;
     private String aggregateId;
+    // Nullable for outbox records created before account-based partitioning.
+    private String partitionKey;
     private String eventType;
 
     @Lob
@@ -30,10 +32,11 @@ public class OutboxEvent {
         this.status = OutboxStatus.SENT;
     }
 
-    public static OutboxEvent create(String aggregateType, String aggregateId, String eventType, String payload) {
+    public static OutboxEvent create(String aggregateType, String aggregateId, String partitionKey, String eventType, String payload) {
         OutboxEvent event = new OutboxEvent();
         event.aggregateType = aggregateType;
         event.aggregateId = aggregateId;
+        event.partitionKey = partitionKey;
         event.eventType = eventType;
         event.payload = payload;
         event.status = OutboxStatus.PENDING;

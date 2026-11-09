@@ -1,5 +1,9 @@
 package com.example.bank.outbox;
 
+import com.example.bank.transfer.TransferEvent;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +23,7 @@ public class OutboxRelayer {
     private final OutboxRepository outboxRepository;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final OutboxStatusService outboxStatusService;
+    private final ObjectMapper objectMapper;
 
     // 1. 트랜잭션 성공 직후 즉시 실행 (실시간성)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -48,7 +53,7 @@ public class OutboxRelayer {
         try {
             kafkaTemplate.send(
                     "transfer-topic",
-                    String.valueOf(outbox.getAggregateId()),
+                    resolvePartitionKey(outbox),
                     outbox.getPayload()
             ).whenComplete((result, ex) -> {
                 if (ex == null) {
@@ -59,8 +64,28 @@ public class OutboxRelayer {
                 }
             });
         } catch (Exception e) {
-            log.error("전송 로직 에러", e);
+            log.error("Outbox publish failed: outboxId={}, aggregateId={}",
+                    outbox.getId(), outbox.getAggregateId(), e);
         }
+    }
+
+    private String resolvePartitionKey(OutboxEvent outbox) throws JsonProcessingException {
+        if (outbox.getPartitionKey() != null) {
+            if (outbox.getPartitionKey().isBlank()) {
+                throw new IllegalArgumentException("Outbox partitionKey is blank");
+            }
+            return outbox.getPartitionKey();
+        }
+
+        // Legacy rows: recover only from the original event, never from aggregateId.
+        TransferEvent event = objectMapper.readerFor(TransferEvent.class)
+                .without(DeserializationFeature.ACCEPT_FLOAT_AS_INT)
+                .readValue(outbox.getPayload());
+        if (event == null || event.fromAccountId() == null || event.fromAccountId() <= 0
+                || event.transferId() == null || !event.transferId().equals(outbox.getAggregateId())) {
+            throw new IllegalArgumentException("Cannot safely recover Outbox partitionKey");
+        }
+        return String.valueOf(event.fromAccountId());
     }
 
 }

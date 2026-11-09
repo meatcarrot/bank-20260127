@@ -6,6 +6,7 @@ import com.example.bank.transfer.*;
 import com.example.bank.ledger.AccountLedgerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -33,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "spring.kafka.listener.auto-startup=false"  // Kafka 비활성화
 })
 @ActiveProfiles("test")
+@Tag("integration")
 class TransferConcurrency100Test {
 
     @Autowired

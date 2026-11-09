@@ -94,6 +94,7 @@ public class TransferService {
             OutboxEvent outbox = OutboxEvent.create(
                     "TRANSFER",
                     transferId, // 거래 ID를 식별자로 사용
+                    String.valueOf(fromId),
                     "TransferCreated",
                     payload
                     );

@@ -2,7 +2,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY build/libs/*.jar app.jar
+ARG JAR_FILE=build/libs/bank-0.0.1-SNAPSHOT.jar
+COPY ${JAR_FILE} app.jar
 
 EXPOSE 8080
 

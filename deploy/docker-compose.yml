@@ -58,7 +58,7 @@ services:
       - ./infra/nginx/static:/var/www/bank-static:ro
 
   app1:
-    image: meatcarrot/bank-app:20260616
+    image: meatcarrot/bank-app:20261110-account-key
     depends_on:
       mysql:
         condition: service_healthy
@@ -74,7 +74,7 @@ services:
       - "8081:8080"
 
 #  app2:
-#    image: meatcarrot/bank-app:20260616
+#    image: meatcarrot/bank-app:20261110-account-key
 #    depends_on:
 #      mysql:
 #        condition: service_healthy
