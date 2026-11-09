@@ -63,4 +63,8 @@ docker push meatcarrot/bank-app:20261110-account-key
 
 2026-11-10 이미지 검증: `linux/amd64`, Java 21 JRE 이미지로 빌드했다. 격리된 MySQL·Kafka에 연결하여 애플리케이션 정상 기동, 회원가입·로그인 HTTP 200과 Access/Refresh Token 발급을 확인했다. 로컬·배포용 Compose의 `config --quiet` 검증도 통과했다. 기존 동시 송금 테스트에도 `integration` 태그를 붙여 외부 DB가 없는 CI와 통합 검증 실행을 구분했다.
 
+- 이미지 Config ID: `sha256:0a6cd17190549bac7d65e16a39cd28a745262bf87626b86d285f2ccb4414ca4c`
+- Boot JAR SHA-256: `9f688bc818dd3dc670660ec93863e59749344e465b1ad6144b5f32243e6c6210`
+- 소스 커밋 `d44c52b`의 [GitHub Bank CI](https://github.com/meatcarrot/bank-20260127/actions/runs/42647948989)도 성공했다.
+
 기존 환경 교체 시에는 위 전환 절차에 따라 접수 중지, PENDING 발행·Consumer lag 소진을 먼저 완료한다. 이미지 준비 후 대상 환경에 맞는 Compose로 `pull app1` 및 `up -d --no-deps app1`을 실행한다. 두 앱을 사용하는 로컬 구성은 `app1 app2`를 함께 지정한다. Consumer Offset과 Topic 파티션 수를 바꾸지 않는다.

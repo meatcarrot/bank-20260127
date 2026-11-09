@@ -74,7 +74,7 @@ $env:CI = 'false'
 wsl -d Ubuntu-22.04 -- docker compose -p bank-key-it -f /mnt/c/Users/ningu/IdeaProjects/bank/infra/integration/docker-compose.yml down --volumes
 ```
 
-두 test 실행은 기존 전체 애플리케이션 컨텍스트의 업무 Consumer가 새 Kafka 검증 중 동작하지 않도록 분리했다. 실제 실행은 이미 설치된 Gradle 9.2.1 배포판과 작업 폴더의 `.gradle/verification-home` 의존성 캐시를 이용하여 `--offline --project-cache-dir .gradle/verification-project-cache`로 수행했다. XML 증거는 `.gradle/integration-evidence`에 두 실행을 모두 보관했다. 기본 HTML 보고서 `build/reports/tests/test/index.html`에는 마지막 실행 28건이 표시된다.
+두 test 실행은 기존 전체 애플리케이션 컨텍스트의 업무 Consumer가 새 Kafka 검증 중 동작하지 않도록 분리했다. 실제 실행은 이미 설치된 Gradle 9.2.1 배포판과 작업 폴더의 `.gradle/verification-home` 의존성 캐시를 이용하여 `--offline --project-cache-dir .gradle/verification-project-cache`로 수행했다. XML 증거는 `.gradle/integration-evidence`에 두 실행을 모두 보관했다. 기본 HTML 보고서 `build/reports/tests/test/index.html`은 마지막 실행의 결과만 표시한다. 후속 이미지 빌드 단계에서는 `CI=true`로 전체 `build`를 실행하여 단위 테스트 22건 통과와 기존 Disabled 테스트 1건 skip을 확인했다.
 
 ## 검증 한계
 
